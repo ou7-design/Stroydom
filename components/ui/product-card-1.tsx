@@ -115,6 +115,7 @@ export function ProductCard({
           key={currentImageIndex}
           src={images[currentImageIndex]}
           alt={`${name} - View ${currentImageIndex + 1}`}
+          loading="lazy"
           className="object-cover w-full h-full"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

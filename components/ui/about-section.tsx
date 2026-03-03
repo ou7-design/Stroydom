@@ -17,6 +17,10 @@ export function AboutSection() {
             className="w-full rounded-2xl object-cover aspect-square shadow-xl ring-1 ring-border/50"
             src="/showroom.png"
             alt="Stroydom showroom"
+            loading="lazy"
+            decoding="async"
+            width={800}
+            height={800}
           />
         </div>
 

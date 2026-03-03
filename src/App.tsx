@@ -7,19 +7,26 @@ import { ArrowRight, Star, Mail, Phone, MapPin } from "lucide-react";
 import { Header } from "@/components/ui/header-1";
 import { ContactPage } from "@/components/ui/contact-page";
 import { HeroSection, LogosSection } from "@/components/ui/hero-1";
-import { AboutSection } from "@/components/ui/about-section";
 import { ProductCard } from "@/components/ui/product-card-1";
-import { NewsCards } from "@/components/ui/news-cards";
 import { CartDrawer } from "@/components/ui/cart-drawer";
 import { CartProvider } from './contexts/CartContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AdminProvider } from './contexts/AdminContext';
-import AdminLogin from './pages/admin/Login';
-import AdminDashboard from './pages/admin/Dashboard';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import axios from 'axios';
 
-// Default building materials products shown when no backend products available
+// Lazy loaded components for bundle optimization
+const AboutSection = lazy(() => import("@/components/ui/about-section").then(m => ({ default: m.AboutSection })));
+const NewsCards = lazy(() => import("@/components/ui/news-cards").then(m => ({ default: m.NewsCards })));
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+
+// Loading spinner fallback
+const LoaderFallback = () => (
+  <div className="flex items-center justify-center py-20 min-h-[50vh]">
+    <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+  </div>
+);
 const DEFAULT_PRODUCTS = [
   {
     _id: "1",
@@ -135,10 +142,14 @@ const HomeLayout = () => {
       <main>
         <HeroSection />
         <LogosSection />
-        <AboutSection />
+        <Suspense fallback={<LoaderFallback />}>
+          <AboutSection />
+        </Suspense>
         <ProductsSection />
-        <NewsCards />
-        </main>
+        <Suspense fallback={<LoaderFallback />}>
+          <NewsCards />
+        </Suspense>
+      </main>
       <ContactPage />
     </div>
   );
@@ -149,11 +160,13 @@ export default function App() {
     <BrowserRouter>
       <CartProvider>
         <AdminProvider>
-          <Routes>
-            <Route path="/" element={<HomeLayout />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
+          <Suspense fallback={<LoaderFallback />}>
+            <Routes>
+              <Route path="/" element={<HomeLayout />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Routes>
+          </Suspense>
           <CartDrawer />
         </AdminProvider>
       </CartProvider>

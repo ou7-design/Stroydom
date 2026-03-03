@@ -3,12 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Trash2, ShoppingBag, Send } from 'lucide-react';
 import { useCart } from '@/src/contexts/CartContext';
 
+// Map common hex colors to human-readable names
+const COLOR_NAMES: Record<string, string> = {
+  '#c0c0c0': 'Kumush (Silver)',
+  '#ffd700': 'Oltin (Gold)',
+  '#a0522d': 'Jigarrang (Bronze)',
+  '#f5f5f5': 'Oq (White)',
+  '#2e2e2e': 'Qora (Black)',
+  '#1a73e8': 'Ko\'k (Blue)',
+  '#1e293b': 'To\'q ko\'k (Navy)',
+  '#a855f7': 'Binafsha (Purple)',
+  '#0ea5e9': 'Gʻo\'ng\'ir ko\'k (Sky Blue)',
+  '#84cc16': 'Yashil (Green)',
+  '#ef4444': 'Qizil (Red)',
+  '#f97316': 'To\'q sariq (Orange)',
+  '#ffffff': 'Oq (White)',
+  '#000000': 'Qora (Black)',
+};
+
+function hexToColorName(hex: string): string {
+  const normalized = hex.toLowerCase().trim();
+  return COLOR_NAMES[normalized] ?? hex;
+}
+
 function buildTelegramMessage(items: ReturnType<typeof useCart>['items'], total: number): string {
   const lines: string[] = [
     '🛒 *Yangi buyurtma — STROYDOM*',
     '',
     ...items.map((item, i) => {
-      const colorLine = item.color ? `   🎨 Rang: ${item.color}` : '';
+      const colorLabel = item.color ? hexToColorName(item.color) : null;
+      const colorLine = colorLabel ? `   🎨 Rang: ${colorLabel}` : '';
       return [
         `${i + 1}. *${item.name}*`,
         `   💰 Narx: ${item.price.toLocaleString()} so'm`,

@@ -172,6 +172,8 @@ export function NewsCards({ enableAnimations = true }: NewsCardsProps) {
                       src={thumb}
                       alt={post.caption ? truncate(post.caption, 60) : "Instagram post"}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop";

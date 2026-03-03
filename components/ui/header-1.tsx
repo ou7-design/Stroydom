@@ -17,15 +17,15 @@ export function Header() {
 	const links = [
 		{
 			label: 'Biz Haqimizda',
-			href: '#',
+			href: '#about',
 		},
 		{
 			label: 'Mahsulotlar',
-			href: '#',
+			href: '#products',
 		},
 		{
 			label: 'Yangiliklar',
-			href: '#',
+			href: '#instagram',
 		},
 	];
 

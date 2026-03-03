@@ -34,11 +34,11 @@ export function AnimatedText({
   }, [text, delayMultiplier])
 
   const characters = text.split("").map((char, index) => (
-    <span
+      <span
       key={index}
       aria-hidden="true"
+      className="md:animate-[breath_1.5s_alternate_infinite_cubic-bezier(0.37,0,0.63,1)]"
       style={{
-        animation: `breath ${animationDuration}s alternate cubic-bezier(0.37, 0, 0.63, 1) infinite`,
         animationFillMode: "both",
         fontVariationSettings: `"wght" ${minWeight}`,
         display: "inline-block",
