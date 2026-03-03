@@ -1,0 +1,98 @@
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { RocketIcon, ArrowRightIcon, PhoneCallIcon } from "lucide-react";
+import { LogoCloud } from "@/components/ui/logo-cloud-3";
+import { FlipWords } from "@/components/ui/flip-words";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+
+export function HeroSection() {
+	const words = ["Smesitel", "Filtr", "Radiator", "Isitish qozonlari"];
+	return (
+		<AuroraBackground className="!h-auto !min-h-[80vh] w-full pt-10 pb-20">
+			<section className="mx-auto w-full max-w-5xl relative z-10">
+				{/* main content */}
+
+				<div className="relative flex flex-col items-center justify-center gap-5 mt-10">
+
+				<h1
+					className={cn(
+						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl",
+						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
+					)}
+				>
+					Ishonchli <FlipWords words={words} className="text-foreground" /> izlayapsizmi ? <br /> To'g'ri manzildasiz
+				</h1>
+
+				<p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">
+					Sifat • Kafolat • Yetkazib berish
+				</p>
+
+				<div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
+					<a href="tel:+998977777015">
+						<Button className="rounded-full" size="lg" variant="default">
+							<PhoneCallIcon data-icon="inline-start" className="size-4 mr-2" />{" "}
+							Bog'lanish
+						</Button>
+					</a>
+				</div>
+			</div>
+			</section>
+		</AuroraBackground>
+	);
+}
+
+export function LogosSection() {
+	return (
+		<section className="relative space-y-4 pt-6 pb-10">
+			<h2 className="text-center font-medium text-lg text-muted-foreground tracking-tight md:text-xl">
+				Asosiy <span className="text-foreground">Hamkorlarimiz</span>
+			</h2>
+			<div className="relative z-10 mx-auto max-w-4xl">
+				<LogoCloud logos={logos} />
+			</div>
+		</section>
+	);
+}
+
+const logos = [
+	{
+		src: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Grohe_AG_Logo.svg/3840px-Grohe_AG_Logo.svg.png",
+		alt: "Grohe Logo",
+	},
+	{
+		src: "https://www.viega.us/content/dam/viegadm/en_us/corporation/brand/images/ViegaOnly_black-1.png",
+		alt: "Viega Logo",
+	},
+	{
+		src: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/BWT_Logo_2024.svg/1280px-BWT_Logo_2024.svg.png",
+		alt: "BWT Logo",
+	},
+	{
+		src: "https://wp.logos-download.com/wp-content/uploads/2016/10/Grundfos_logo.png?dl",
+		alt: "Grundfos Logo",
+	},
+	{
+		src: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Wavin_Logo_SVG.svg",
+		alt: "Wavin Logo",
+	},
+	{
+		src: "https://www.marlin.com.pl/images/makers/ferro.png",
+		alt: "Ferro Logo",
+	},
+	{
+		src: "https://vectorseek.com/wp-content/uploads/2023/09/Chaffoteaux-Logo-Vector.svg-.png",
+		alt: "Chaffoteaux Logo",
+	},
+	{
+		src: "https://teplofakt.by/upload/iblock/40c/40c0218d6567070bc234bf5ce5a276f9.png",
+		alt: "Herz Logo",
+	},
+	{
+		src: "https://capcap.md/img_brand/07202409511853794499.webp",
+		alt: "Termet Logo",
+	},
+	{
+		src: "https://thermoindustria.com/images/feature_variant/9/Logo-POLETTI.png",
+		alt: "Carlo Poletti Logo",
+	},
+];

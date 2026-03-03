@@ -1,0 +1,17 @@
+[
+  {
+    "_id": "1772505011672",
+    "name": "Viega",
+    "category": "quvur",
+    "description": "",
+    "price": 21000,
+    "quantity": 1,
+    "inStock": true,
+    "image": "http://localhost:5000/uploads/1772505011632-388158614.jpg",
+    "images": [
+      "http://localhost:5000/uploads/1772505011632-388158614.jpg"
+    ],
+    "colors": [],
+    "createdAt": "2026-03-03T02:30:11.672Z"
+  }
+]
