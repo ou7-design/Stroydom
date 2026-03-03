@@ -54,6 +54,7 @@ const Badge = ({ className, children }: { className?: string; children: React.Re
 // ----------- ProductCard -----------
 
 export interface ProductCardProps {
+  key?: React.Key;
   productId?: string;
   name?: string;
   price?: number;
