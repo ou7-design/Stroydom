@@ -6,8 +6,11 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   price: { type: Number, required: true },
   salePrice: { type: Number },
+  quantity: { type: Number },
   inStock: { type: Boolean, default: true },
   image: { type: String, required: true },
+  images: [{ type: String }],
+  colors: [{ type: String }]
 }, { timestamps: true });
 
 export default mongoose.model('Product', productSchema);
