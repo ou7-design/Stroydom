@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, Plus, Pencil, Trash2, X, Save, Image as ImageIcon,
   Package, Search, Building2, Eye, CheckCircle, AlertCircle,
-  ChevronLeft, ChevronRight, Link
+  ChevronLeft, ChevronRight, Link, Upload, Loader2
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc } from 'firebase/firestore';
@@ -41,10 +41,12 @@ export default function AdminDashboard() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Image URL state (no file upload needed — just paste URLs)
+  // Image state — supports both URL input and file upload (via ImgBB)
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [currentPreviewIdx, setCurrentPreviewIdx] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Color state
   const [colorInput, setColorInput] = useState('#1e293b');
@@ -123,6 +125,39 @@ export default function AdminDashboard() {
       setCurrentPreviewIdx(imageUrls.length);
     }
     setImageUrlInput('');
+  };
+
+  const uploadToImgBB = async (file: File): Promise<string> => {
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    if (!apiKey) throw new Error('VITE_IMGBB_API_KEY not set');
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('ImgBB upload failed');
+    return data.data.url as string;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || imageUrls.length >= 5) return;
+    const files = Array.from(e.target.files).slice(0, 5 - imageUrls.length);
+    setUploading(true);
+    try {
+      const uploaded = await Promise.all(files.map(uploadToImgBB));
+      setImageUrls(prev => {
+        const next = [...prev, ...uploaded].slice(0, 5);
+        setCurrentPreviewIdx(next.length - 1);
+        return next;
+      });
+    } catch {
+      addToast('Rasm yuklashda xato. VITE_IMGBB_API_KEY ni tekshiring.', 'error');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const removeImage = (idx: number) => {
@@ -332,7 +367,7 @@ export default function AdminDashboard() {
 
               {/* ── Image URL Input ── */}
               <div>
-                <label className="block text-sm font-medium mb-2">Rasm URL manzillari <span className="text-muted-foreground font-normal">(maksimum 5)</span></label>
+                <label className="block text-sm font-medium mb-2">Rasmlar <span className="text-muted-foreground font-normal">(maksimum 5 ta)</span></label>
                 <div className="space-y-3">
                   {/* Preview carousel */}
                   {imageUrls.length > 0 && (
@@ -367,32 +402,41 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   )}
-                  {/* URL input */}
+                  {/* Upload from computer + URL input */}
                   {imageUrls.length < 5 && (
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                          type="url"
-                          value={imageUrlInput}
-                          onChange={e => setImageUrlInput(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
-                          className={`${InputCls} pl-8`}
-                          placeholder="https://example.com/image.jpg"
-                        />
-                      </div>
-                      <button type="button" onClick={addImageUrl}
-                        className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors flex-shrink-0">
-                        <Plus size={16} />
+                    <div className="space-y-2">
+                      {/* File upload button */}
+                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-60 bg-muted/30">
+                        {uploading ? <><Loader2 size={16} className="animate-spin" /> Yuklanmoqda...</> : <><Upload size={16} /> Kompyuterdan yuklash</>}
                       </button>
+                      <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+                      {/* or URL input */}
+                      <div className="flex items-center gap-2">
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-xs text-muted-foreground">yoki URL kiriting</span>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            type="url"
+                            value={imageUrlInput}
+                            onChange={e => setImageUrlInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                            className={`${InputCls} pl-8`}
+                            placeholder="https://example.com/image.jpg"
+                          />
+                        </div>
+                        <button type="button" onClick={addImageUrl}
+                          className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors flex-shrink-0">
+                          <Plus size={16} />
+                        </button>
+                      </div>
                     </div>
                   )}
-                  {imageUrls.length === 0 && (
-                    <div className="h-24 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/30">
-                      <ImageIcon size={24} className="opacity-50" />
-                      <span className="text-xs opacity-60">Rasm URL manzilini yukarida kiriting</span>
-                    </div>
-                  )}
+
                 </div>
               </div>
 
