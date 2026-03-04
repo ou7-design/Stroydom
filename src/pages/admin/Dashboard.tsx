@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, Plus, Pencil, Trash2, X, Save, Image as ImageIcon,
   Package, Search, Building2, Eye, CheckCircle, AlertCircle,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Link
 } from 'lucide-react';
-import axios from 'axios';
+import { db } from '../../lib/firebase';
+import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc } from 'firebase/firestore';
 
 interface Product {
   _id: string;
@@ -17,14 +18,10 @@ interface Product {
   inStock: boolean;
   quantity?: number;
   images?: string[];
-  image?: string; // legacy single image support
+  image?: string;
   description?: string;
   colors?: string[];
-}
-
-interface FormState extends Omit<Product, 'images' | 'colors'> {
-  images?: string[];
-  colors?: string[];
+  sizes?: string[];
 }
 
 type ToastType = 'success' | 'error';
@@ -39,19 +36,19 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<FormState>>({});
-  // Multi-image state
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [currentPreviewIdx, setCurrentPreviewIdx] = useState(0);
-  // Color state
-  const [colorInput, setColorInput] = useState('#1e293b');
-  const [colors, setColors] = useState<string[]>([]);
-
+  const [formData, setFormData] = useState<Partial<Product>>({});
   const [saving, setSaving] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Image URL state (no file upload needed — just paste URLs)
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [currentPreviewIdx, setCurrentPreviewIdx] = useState(0);
+
+  // Color state
+  const [colorInput, setColorInput] = useState('#1e293b');
+  const [colors, setColors] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) navigate('/admin/login');
@@ -61,8 +58,16 @@ export default function AdminDashboard() {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/products');
-      setProducts(data);
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const productsData = querySnapshot.docs.map(d => ({
+        _id: d.id,
+        ...d.data()
+      })) as Product[];
+      productsData.sort((a: any, b: any) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return b.createdAt - a.createdAt;
+      });
+      setProducts(productsData);
     } catch {
       addToast('Mahsulotlarni yuklashda xato', 'error');
     }
@@ -78,21 +83,21 @@ export default function AdminDashboard() {
     setEditingId(product._id);
     setFormData(product);
     const imgs = product.images?.length ? product.images : (product.image ? [product.image] : []);
-    setImagePreviews(imgs);
-    setImageFiles([]);
+    setImageUrls(imgs);
     setCurrentPreviewIdx(0);
     setColors(product.colors || []);
     setColorInput('#1e293b');
+    setImageUrlInput('');
   };
 
   const openNew = () => {
     setEditingId('new');
     setFormData({ inStock: true, price: 0, quantity: 1 });
-    setImagePreviews([]);
-    setImageFiles([]);
+    setImageUrls([]);
     setCurrentPreviewIdx(0);
     setColors([]);
     setColorInput('#1e293b');
+    setImageUrlInput('');
   };
 
   const closeModal = () => setEditingId(null);
@@ -101,7 +106,7 @@ export default function AdminDashboard() {
     if (!confirm('Bu mahsulotni o\'chirishni tasdiqlaysizmi?')) return;
     setDeletingId(id);
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await deleteDoc(doc(db, 'products', id));
       addToast('Mahsulot o\'chirildi', 'success');
       fetchProducts();
     } catch {
@@ -111,59 +116,50 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files) as File[];
-    const newFiles = [...imageFiles, ...files].slice(0, 5); // max 5
-    const newPreviews = [...imagePreviews, ...files.map(f => URL.createObjectURL(f))].slice(0, 5);
-    setImageFiles(newFiles);
-    setImagePreviews(newPreviews);
-    setCurrentPreviewIdx(newPreviews.length - 1);
+  const addImageUrl = () => {
+    const url = imageUrlInput.trim();
+    if (url && imageUrls.length < 5 && !imageUrls.includes(url)) {
+      setImageUrls(prev => [...prev, url]);
+      setCurrentPreviewIdx(imageUrls.length);
+    }
+    setImageUrlInput('');
   };
 
   const removeImage = (idx: number) => {
-    const newPreviews = imagePreviews.filter((_, i) => i !== idx);
-    const newFiles = imageFiles.filter((_, i) => i !== idx);
-    setImagePreviews(newPreviews);
-    setImageFiles(newFiles);
+    setImageUrls(prev => prev.filter((_, i) => i !== idx));
     setCurrentPreviewIdx(Math.max(0, currentPreviewIdx - 1));
   };
 
   const addColor = () => {
     if (colorInput && !colors.includes(colorInput)) {
-      setColors([...colors, colorInput]);
+      setColors(prev => [...prev, colorInput]);
     }
   };
 
-  const removeColor = (c: string) => setColors(colors.filter(x => x !== c));
+  const removeColor = (c: string) => setColors(prev => prev.filter(x => x !== c));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const data = new FormData();
       const skip = ['_id', 'image', 'images', 'colors', 'sizes'];
+      const productData: any = {};
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined && !skip.includes(key)) {
-          data.append(key, value.toString());
+          productData[key] = value;
         }
       });
 
-      // Multiple images
-      imageFiles.forEach(f => data.append('images', f));
-      // Keep existing image URLs if no new files uploaded for that slot
-      imagePreviews
-        .filter(p => !p.startsWith('blob:'))
-        .forEach(p => data.append('existingImages', p));
-
-      // Colors as JSON
-      data.append('colors', JSON.stringify(colors));
+      productData.images = imageUrls;
+      productData.image = imageUrls[0] || '';
+      productData.colors = colors;
 
       if (editingId === 'new') {
-        await axios.post('http://localhost:5000/api/products', data);
+        productData.createdAt = Date.now();
+        await addDoc(collection(db, 'products'), productData);
         addToast('Mahsulot qo\'shildi!', 'success');
       } else {
-        await axios.put(`http://localhost:5000/api/products/${editingId}`, data);
+        await updateDoc(doc(db, 'products', editingId!), productData);
         addToast('Mahsulot yangilandi!', 'success');
       }
       closeModal();
@@ -289,17 +285,9 @@ export default function AdminDashboard() {
                 <div className="p-4 flex-1 flex flex-col">
                   <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-medium">{product.category || 'Kategoriyasiz'}</div>
                   <h3 className="font-semibold text-sm leading-snug mb-2 line-clamp-2">{product.name}</h3>
-                  {/* Colors preview */}
                   {product.colors?.length ? (
                     <div className="flex gap-1 mb-2">
                       {product.colors.slice(0, 5).map(c => <span key={c} className="w-4 h-4 rounded-full border border-border flex-shrink-0" style={{ backgroundColor: c }} />)}
-                    </div>
-                  ) : null}
-                  {/* Sizes preview */}
-                  {product.sizes?.length ? (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {product.sizes.slice(0, 4).map(s => <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded">{s}</span>)}
-                      {(product.sizes.length > 4) && <span className="text-xs text-muted-foreground">+{product.sizes.length - 4}</span>}
                     </div>
                   ) : null}
                   <div className="mt-auto">
@@ -342,67 +330,69 @@ export default function AdminDashboard() {
             {/* Form body */}
             <div className="p-6 overflow-y-auto space-y-6 flex-1">
 
-              {/* ── Multi-image upload ── */}
+              {/* ── Image URL Input ── */}
               <div>
-                <label className="block text-sm font-medium mb-2">Rasmlar <span className="text-muted-foreground font-normal">(maksimum 5)</span></label>
+                <label className="block text-sm font-medium mb-2">Rasm URL manzillari <span className="text-muted-foreground font-normal">(maksimum 5)</span></label>
                 <div className="space-y-3">
                   {/* Preview carousel */}
-                  {imagePreviews.length > 0 && (
-                    <div className="relative h-40 rounded-xl overflow-hidden bg-muted border border-border group">
-                      <img src={imagePreviews[currentPreviewIdx]} alt="Preview" className="w-full h-full object-contain" />
-                      {/* Navigation */}
-                      {imagePreviews.length > 1 && (
+                  {imageUrls.length > 0 && (
+                    <div className="relative h-40 rounded-xl overflow-hidden bg-muted border border-border">
+                      <img src={imageUrls[currentPreviewIdx]} alt="Preview" className="w-full h-full object-contain"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                      {imageUrls.length > 1 && (
                         <>
-                          <button type="button" onClick={() => setCurrentPreviewIdx(i => (i - 1 + imagePreviews.length) % imagePreviews.length)}
+                          <button type="button" onClick={() => setCurrentPreviewIdx(i => (i - 1 + imageUrls.length) % imageUrls.length)}
                             className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-colors">
                             <ChevronLeft size={14} />
                           </button>
-                          <button type="button" onClick={() => setCurrentPreviewIdx(i => (i + 1) % imagePreviews.length)}
+                          <button type="button" onClick={() => setCurrentPreviewIdx(i => (i + 1) % imageUrls.length)}
                             className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-colors">
                             <ChevronRight size={14} />
                           </button>
                         </>
                       )}
-                      {/* Remove current */}
                       <button type="button" onClick={() => removeImage(currentPreviewIdx)}
                         className="absolute top-2 right-2 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors">
                         <X size={12} />
                       </button>
-                      {/* Dots */}
-                      {imagePreviews.length > 1 && (
-                        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-                          {imagePreviews.map((_, i) => (
-                            <button type="button" key={i} onClick={() => setCurrentPreviewIdx(i)}
-                              className={`rounded-full transition-all ${i === currentPreviewIdx ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`} />
-                          ))}
+                    </div>
+                  )}
+                  {/* Thumbnails */}
+                  {imageUrls.length > 0 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {imageUrls.map((src, i) => (
+                        <div key={i} onClick={() => setCurrentPreviewIdx(i)} className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer transition-colors ${i === currentPreviewIdx ? 'border-primary' : 'border-border'}`}>
+                          <img src={src} alt="" className="w-full h-full object-cover" />
                         </div>
-                      )}
+                      ))}
                     </div>
                   )}
-                  {/* Thumbnails row */}
-                  <div className="flex gap-2 flex-wrap">
-                    {imagePreviews.map((src, i) => (
-                      <div key={i} onClick={() => setCurrentPreviewIdx(i)} className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer transition-colors ${i === currentPreviewIdx ? 'border-primary' : 'border-border'}`}>
-                        <img src={src} alt="" className="w-full h-full object-cover" />
+                  {/* URL input */}
+                  {imageUrls.length < 5 && (
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                          type="url"
+                          value={imageUrlInput}
+                          onChange={e => setImageUrlInput(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                          className={`${InputCls} pl-8`}
+                          placeholder="https://example.com/image.jpg"
+                        />
                       </div>
-                    ))}
-                    {imagePreviews.length < 5 && (
-                      <button type="button" onClick={() => fileInputRef.current?.click()}
-                        className="w-14 h-14 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:border-primary hover:text-primary transition-colors">
+                      <button type="button" onClick={addImageUrl}
+                        className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors flex-shrink-0">
                         <Plus size={16} />
-                        <span className="text-[10px]">Qo'sh</span>
                       </button>
-                    )}
-                  </div>
-                  {imagePreviews.length === 0 && (
-                    <div onClick={() => fileInputRef.current?.click()}
-                      className="h-32 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary hover:text-primary text-muted-foreground transition-colors bg-muted/30">
-                      <ImageIcon size={24} className="opacity-50" />
-                      <span className="text-sm">Rasm yuklash</span>
-                      <span className="text-xs opacity-60">PNG, JPG · Max 5 ta rasm</span>
                     </div>
                   )}
-                  <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImagesChange} className="hidden" />
+                  {imageUrls.length === 0 && (
+                    <div className="h-24 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/30">
+                      <ImageIcon size={24} className="opacity-50" />
+                      <span className="text-xs opacity-60">Rasm URL manzilini yukarida kiriting</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -440,10 +430,8 @@ export default function AdminDashboard() {
               <div>
                 <label className="block text-sm font-medium mb-2">Ranglar</label>
                 <div className="flex gap-2 items-center mb-3">
-                  <div className="relative">
-                    <input type="color" value={colorInput} onChange={e => setColorInput(e.target.value)}
-                      className="w-10 h-10 rounded-lg cursor-pointer border border-border bg-transparent p-0.5 overflow-hidden" />
-                  </div>
+                  <input type="color" value={colorInput} onChange={e => setColorInput(e.target.value)}
+                    className="w-10 h-10 rounded-lg cursor-pointer border border-border bg-transparent p-0.5 overflow-hidden" />
                   <input type="text" value={colorInput} onChange={e => setColorInput(e.target.value)} className={`${InputCls} flex-1`} placeholder="#1e293b" />
                   <button type="button" onClick={addColor} className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors flex-shrink-0">
                     Qo'sh
@@ -461,7 +449,6 @@ export default function AdminDashboard() {
                   </div>
                 )}
               </div>
-
 
               {/* ── Stock toggle ── */}
               <label className="flex items-center gap-3 cursor-pointer select-none">

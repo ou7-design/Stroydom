@@ -13,7 +13,8 @@ import { CartProvider } from './contexts/CartContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AdminProvider } from './contexts/AdminContext';
 import { useState, useEffect, Suspense, lazy } from 'react';
-import axios from 'axios';
+import { db } from './lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 // Lazy loaded components for bundle optimization
 const AboutSection = lazy(() => import("@/components/ui/about-section").then(m => ({ default: m.AboutSection })));
@@ -90,8 +91,17 @@ const ProductsSection = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/products');
-        setProducts(data);
+        const querySnapshot = await getDocs(collection(db, 'products'));
+        const productsData = querySnapshot.docs.map(doc => ({
+          _id: doc.id,
+          ...doc.data()
+        }));
+        // Sort by createdAt descending if it exists
+        productsData.sort((a: any, b: any) => {
+          if (!a.createdAt || !b.createdAt) return 0;
+          return b.createdAt - a.createdAt;
+        });
+        setProducts(productsData);
       } catch (err) {
         console.error('Failed to fetch products', err);
       }

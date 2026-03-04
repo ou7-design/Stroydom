@@ -67,17 +67,9 @@ export function NewsCards({ enableAnimations = true }: NewsCardsProps) {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/instagram/posts");
-        if (!res.ok) throw new Error("No data");
-        const data: InstagramPost[] = await res.json();
-        setPosts(data.slice(0, 3));
-      } catch {
-        // Fallback to placeholder while Instagram token is not set up
-        setPosts(PLACEHOLDER_POSTS);
-      } finally {
-        setLoading(false);
-      }
+      // Backend Instagram integration removed for Firebase migration
+      setPosts(PLACEHOLDER_POSTS);
+      setLoading(false);
     };
     fetchPosts();
   }, []);

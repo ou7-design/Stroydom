@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import { auth } from '../lib/firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 interface AdminContextType {
   isAuthenticated: boolean;
@@ -16,49 +17,42 @@ export const useAdmin = () => {
   return context;
 };
 
+// Hardcoded admin email to maintain the single-password login UI
+const ADMIN_EMAIL = 'admin@stroydom.com';
+
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Configure axios to send cookies
-  axios.defaults.withCredentials = true;
-
   useEffect(() => {
-    // Basic check - in a real app you'd verify the token on the server
-    const checkAuth = () => {
-      const isAuth = localStorage.getItem('isAdminAuth') === 'true';
-      setIsAuthenticated(isAuth);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
       setLoading(false);
-    };
-    checkAuth();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (password: string) => {
     try {
-      const url = `http://localhost:5000/api/auth/login`;
-      console.log('Attempting login at:', url);
-      await axios.post(url, { password });
-      setIsAuthenticated(true);
-      localStorage.setItem('isAdminAuth', 'true');
+      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, password);
       return true;
     } catch (error) {
-      console.error('Login failed', error);
+      console.error('Firebase login failed:', error);
       return false;
     }
   };
 
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout');
-      setIsAuthenticated(false);
-      localStorage.removeItem('isAdminAuth');
+      await signOut(auth);
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error('Firebase logout failed:', error);
     }
   };
 
   return (
-    <AdminContext.Provider value={{ isAuthenticated, login, logout, loading }}>
+    <AdminContext.Provider value={{ isAuthenticated, login, logout: handleLogout, loading }}>
       {children}
     </AdminContext.Provider>
   );
