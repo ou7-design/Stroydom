@@ -128,16 +128,27 @@ export default function AdminDashboard() {
   };
 
   const uploadToImgBB = async (file: File): Promise<string> => {
-    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY || 'f02041ee93e0d861ff483e2cfa0b22b2';
     if (!apiKey) throw new Error('VITE_IMGBB_API_KEY not set');
+
+    const base64Image = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = error => reject(error);
+    });
+
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', base64Image);
     const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
       method: 'POST',
       body: formData,
     });
     const data = await res.json();
-    if (!data.success) throw new Error('ImgBB upload failed');
+    if (!data.success) {
+      console.error('ImgBB Error Response:', data);
+      throw new Error(data.error?.message || 'ImgBB upload failed');
+    }
     return data.data.url as string;
   };
 
@@ -152,8 +163,9 @@ export default function AdminDashboard() {
         setCurrentPreviewIdx(next.length - 1);
         return next;
       });
-    } catch {
-      addToast('Rasm yuklashda xato. VITE_IMGBB_API_KEY ni tekshiring.', 'error');
+    } catch (err: any) {
+      console.error("ImgBB Upload ERROR:", err);
+      addToast(`Rasm yuklashda xato: ${err.message}`, 'error');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

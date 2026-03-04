@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { RocketIcon, ArrowRightIcon, PhoneCallIcon } from "lucide-react";
 import { LogoCloud } from "@/components/ui/logo-cloud-3";
 import { FlipWords } from "@/components/ui/flip-words";
-import { AuroraBackground } from "@/components/ui/aurora-background";
 
 export function HeroSection() {
 	const words = ["Smesitel", "Filtr", "Radiator", "Isitish qozonlari"];
 	return (
-		<AuroraBackground className="!h-auto !min-h-[80vh] w-full pt-10 pb-20">
+		<div className="w-full h-auto min-h-[80vh] flex items-center justify-center pt-10 pb-20 bg-background overflow-hidden relative">
 			<section className="mx-auto w-full max-w-5xl relative z-10">
 				{/* main content */}
 
@@ -37,7 +36,7 @@ export function HeroSection() {
 				</div>
 			</div>
 			</section>
-		</AuroraBackground>
+		</div>
 	);
 }
 
