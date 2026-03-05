@@ -29,9 +29,6 @@ export function HeroSection() {
 					Ishonchli <WordRotate words={words} className="text-primary inline-block font-black px-2" /> izlayapsizmi? <br className="hidden md:block"/> <span className="inline-block mt-2 md:mt-0">To'g'ri manzildasiz</span>
 				</h1>
 
-				<p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">
-					Sifat • Kafolat • Yetkazib berish
-				</p>
 
 				<div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
 					<a href="tel:+998977777015">

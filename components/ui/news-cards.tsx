@@ -23,7 +23,7 @@ interface NewsCardsProps {
 const PLACEHOLDER_POSTS: InstagramPost[] = [
   {
     id: "p1",
-    permalink: "https://www.instagram.com/stroydom.uzbekistan/",
+    permalink: "https://www.instagram.com/stroydom.uzbekistan?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
     media_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop",
     media_type: "IMAGE",
     caption: "Yuqori sifatli Viega quvur tizimlari — ishonchli va uzoq xizmat qiluvchi muhandislik yechimlari. 🔧 #stroydom #viega #quvur",
@@ -31,7 +31,7 @@ const PLACEHOLDER_POSTS: InstagramPost[] = [
   },
   {
     id: "p2",
-    permalink: "https://www.instagram.com/stroydom.uzbekistan/",
+    permalink: "https://www.instagram.com/stroydom.uzbekistan?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
     media_url: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&auto=format&fit=crop",
     media_type: "IMAGE",
     caption: "Chaffoteaux qozonlari — uyingizni iliq ushlab turadi. Energiya tejaydigan zamonaviy isitish tizimlari. 🏠🔥 #stroydom #chaffoteaux",
@@ -39,7 +39,7 @@ const PLACEHOLDER_POSTS: InstagramPost[] = [
   },
   {
     id: "p3",
-    permalink: "https://www.instagram.com/stroydom.uzbekistan/",
+    permalink: "https://www.instagram.com/stroydom.uzbekistan?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
     media_url: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&auto=format&fit=crop",
     media_type: "IMAGE",
     caption: "BWT suv filtrlari — toza va sog'lom suv uchun professional yechim. 💧 #stroydom #bwt #suvfiltri #tozasuv",
@@ -221,7 +221,7 @@ export function NewsCards({ enableAnimations = true }: NewsCardsProps) {
           transition={{ delay: 0.8 }}
         >
           <a
-            href="https://www.instagram.com/stroydom.uzbekistan/"
+            href="https://www.instagram.com/stroydom.uzbekistan?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 border border-border rounded-full text-sm font-semibold hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-all duration-200"
