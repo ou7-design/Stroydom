@@ -26,11 +26,15 @@ export function HeroSection() {
 						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
 					)}
 				>
-					Ishonchli <WordRotate words={words} className="text-primary inline-block font-black px-2" /> izlayapsizmi? <br className="hidden md:block"/> <span className="inline-block mt-2 md:mt-0">To'g'ri manzildasiz</span>
+					Ishonchli
+				<br />
+				<WordRotate words={words} className="text-primary inline-block font-black px-2" />
+				<br />
+				izlayapsizmi?
 				</h1>
 
 
-				<div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
+				<div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out mt-8">
 					<a href="tel:+998977777015">
 						<Button className="rounded-full" size="lg" variant="default">
 							<PhoneCallIcon data-icon="inline-start" className="size-4 mr-2" />{" "}
@@ -48,7 +52,7 @@ export function LogosSection() {
 	return (
 		<section className="relative space-y-4 pt-6 pb-10">
 			<h2 className="text-center font-medium text-lg text-muted-foreground tracking-tight md:text-xl">
-				Asosiy <span className="text-foreground">Hamkorlarimiz</span>
+				Asosiy <span className="text-foreground"> Hamkorlarimiz</span>
 			</h2>
 			<div className="relative z-10 mx-auto max-w-4xl">
 				<LogoCloud logos={logos} />
