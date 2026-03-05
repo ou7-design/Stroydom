@@ -15,11 +15,11 @@ export function HeroSection() {
 
 				<h1
 					className={cn(
-						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl",
+						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center text-3xl sm:text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl flex flex-col md:block items-center justify-center space-y-2 md:space-y-0",
 						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
 					)}
 				>
-					Ishonchli <FlipWords words={words} className="text-foreground" /> izlayapsizmi ? <br /> To'g'ri manzildasiz
+					<span>Ishonchli</span> <FlipWords words={words} className="text-foreground -mt-2 md:mt-0" /> <span>izlayapsizmi ?</span> <br className="hidden md:block"/> <span className="mt-2 md:mt-0">To'g'ri manzildasiz</span>
 				</h1>
 
 				<p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">

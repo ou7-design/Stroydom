@@ -87,11 +87,11 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
+    --background: 0 0% 0%;
     --foreground: 210 40% 96%;
-    --card: 222 47% 9%;
+    --card: 222 47% 6%; /* Keep card slightly gray so it doesn't blend perfectly into black background */
     --card-foreground: 210 40% 96%;
-    --popover: 222 47% 9%;
+    --popover: 222 47% 6%;
     --popover-foreground: 210 40% 96%;
     --primary: 217 91% 60%;        /* Lighter blue for dark mode #3B82F6 */
     --primary-foreground: 0 0% 100%;

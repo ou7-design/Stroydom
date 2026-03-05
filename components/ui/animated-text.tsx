@@ -14,8 +14,8 @@ interface AnimatedTextProps {
 export function AnimatedText({
   text,
   fontSize = 150,
-  minWeight = 0,
-  maxWeight = 840,
+  minWeight = 200,   // Adjusted from 0 so it doesn't get invisible
+  maxWeight = 600,   // Adjusted from 840 so it doesn't get overly thick
   animationDuration = 1.5,
   delayMultiplier = 0.25,
 }: AnimatedTextProps) {

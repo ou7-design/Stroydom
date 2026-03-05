@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ArrowRight, Star, Mail, Phone, MapPin } from "lucide-react";
+
 import { Header } from "@/components/ui/header-1";
 import { ContactPage } from "@/components/ui/contact-page";
 import { HeroSection, LogosSection } from "@/components/ui/hero-1";
