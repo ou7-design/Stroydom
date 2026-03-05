@@ -52,8 +52,8 @@ export function Header() {
 					<AnimatedText
 						text="STROYDOM"
 						fontSize={20}
-						minWeight={300}
-						maxWeight={800}
+						minWeight={500}
+						maxWeight={900}
 						animationDuration={2}
 						delayMultiplier={0.15}
 					/>
