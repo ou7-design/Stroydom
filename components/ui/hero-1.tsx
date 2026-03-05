@@ -22,7 +22,7 @@ export function HeroSection() {
 
 				<h1
 					className={cn(
-						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-display font-bold text-3xl sm:text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl md:font-extrabold",
+						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-display font-bold text-5xl sm:text-6xl tracking-tighter delay-100 duration-500 ease-out md:text-7xl lg:text-8xl md:font-extrabold",
 						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
 					)}
 				>
