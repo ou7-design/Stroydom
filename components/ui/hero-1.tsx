@@ -2,12 +2,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { RocketIcon, ArrowRightIcon, PhoneCallIcon } from "lucide-react";
 import { LogoCloud } from "@/components/ui/logo-cloud-3";
-import { FlipWords } from "@/components/ui/flip-words";
+import { WordRotate } from "@/components/ui/word-rotate";
 
 export function HeroSection() {
 	const words = ["Smesitel", "Filtr", "Radiator", "Isitish qozonlari"];
 	return (
 		<div className="w-full h-auto min-h-[80vh] flex items-center justify-center pt-10 pb-20 bg-background overflow-hidden relative">
+			{/* Grid Background */}
+			<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+
+			{/* Soft Ambient Glows */}
+			<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -z-10 mix-blend-screen opacity-50 md:opacity-100"></div>
+			<div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] -z-10 mix-blend-screen opacity-50 md:opacity-100"></div>
+
 			<section className="mx-auto w-full max-w-5xl relative z-10">
 				{/* main content */}
 
@@ -15,11 +22,11 @@ export function HeroSection() {
 
 				<h1
 					className={cn(
-						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-bold text-3xl sm:text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl md:font-extrabold",
+						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-display font-bold text-3xl sm:text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl md:font-extrabold",
 						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
 					)}
 				>
-					Ishonchli <FlipWords words={words} className="text-foreground" /> izlayapsizmi? <br className="hidden md:block"/> <span className="inline-block mt-2 md:mt-0">To'g'ri manzildasiz</span>
+					Ishonchli <WordRotate words={words} className="text-primary inline-block font-black px-2" /> izlayapsizmi? <br className="hidden md:block"/> <span className="inline-block mt-2 md:mt-0">To'g'ri manzildasiz</span>
 				</h1>
 
 				<p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">
