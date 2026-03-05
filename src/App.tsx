@@ -87,6 +87,7 @@ const DEFAULT_PRODUCTS = [
 
 const ProductsSection = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -104,6 +105,8 @@ const ProductsSection = () => {
         setProducts(productsData);
       } catch (err) {
         console.error('Failed to fetch products', err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
@@ -123,21 +126,54 @@ const ProductsSection = () => {
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-          {displayProducts.map((product) => (
+          {loading ? (
+            <div className="col-span-full py-20 flex justify-center items-center">
+              <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+            </div>
+          ) : products.length > 0 ? (
+            products.map((product) => {
+              // Admin dashboard uses 'salePrice' for the discounted price, and 'price' for original.
+              // ProductCard expects 'price' as the final price to pay, and 'originalPrice' to strike through.
+              const isDiscounted = !!product.salePrice && product.salePrice < product.price;
+              const finalPrice = isDiscounted ? product.salePrice : product.price;
+              const originalPrice = isDiscounted ? product.price : product.price;
+              const calculatedDiscount = isDiscounted 
+                ? Math.round((1 - (product.salePrice / product.price)) * 100) 
+                : 0;
+
+              return (
             <ProductCard
               key={product._id || product.id}
               productId={product._id || product.id || String(Math.random())}
               name={product.name}
-              price={product.price}
-              originalPrice={product.originalPrice || product.price}
-              discount={product.discount || 0}
+              price={finalPrice}
+              originalPrice={originalPrice}
+              discount={calculatedDiscount}
               freeShipping={product.freeShipping ?? true}
               images={product.images?.length ? product.images : [
                 "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
               ]}
               colors={product.colors || ["#1a73e8", "#c0c0c0", "#2e2e2e"]}
             />
-          ))}
+              );
+            })
+          ) : (
+            displayProducts.map((product) => (
+              <ProductCard
+                key={product._id || product.id}
+                productId={product._id || product.id || String(Math.random())}
+                name={product.name}
+                price={product.price}
+                originalPrice={product.originalPrice || product.price}
+                discount={product.discount || 0}
+                freeShipping={product.freeShipping ?? true}
+                images={product.images?.length ? product.images : [
+                  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
+                ]}
+                colors={product.colors || ["#1a73e8", "#c0c0c0", "#2e2e2e"]}
+              />
+            ))
+          )}
         </div>
       </div>
     </section>
