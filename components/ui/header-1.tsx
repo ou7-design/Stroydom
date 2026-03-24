@@ -41,8 +41,10 @@ export function Header() {
 	}, [open]);
 
 	return (
+		<>
+		<div className="h-14 w-full" />
 		<header
-			className={cn('sticky top-0 z-50 w-full border-b border-transparent', {
+			className={cn('fixed top-0 z-50 w-full border-b border-transparent', {
 				'bg-background/95 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg':
 					scrolled,
 			})}
@@ -103,6 +105,7 @@ export function Header() {
 				</div>
 			</MobileMenu>
 		</header>
+		</>
 	);
 }
 

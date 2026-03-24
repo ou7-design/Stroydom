@@ -11,10 +11,6 @@ export function HeroSection() {
 			{/* Grid Background */}
 			<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
-			{/* Soft Ambient Glows */}
-			<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -z-10 mix-blend-screen opacity-50 md:opacity-100"></div>
-			<div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] -z-10 mix-blend-screen opacity-50 md:opacity-100"></div>
-
 			<section className="mx-auto w-full max-w-5xl relative z-10">
 				{/* main content */}
 
@@ -22,8 +18,7 @@ export function HeroSection() {
 
 				<h1
 					className={cn(
-						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-display font-bold text-5xl sm:text-6xl tracking-tighter delay-100 duration-500 ease-out md:text-7xl lg:text-8xl md:font-extrabold",
-						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
+						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center font-display font-bold text-5xl sm:text-6xl tracking-tighter delay-100 duration-500 ease-out md:text-7xl lg:text-8xl md:font-extrabold"
 					)}
 				>
 					Ishonchli
