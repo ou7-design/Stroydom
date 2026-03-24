@@ -113,6 +113,10 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
@@ -132,6 +136,7 @@
   filter: brightness(0) grayscale(1) !important;
   opacity: 1 !important;
   transition: all 0.3s ease;
+  will-change: filter, transform;
 }
 
 .dark .logo-filter {

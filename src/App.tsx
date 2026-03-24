@@ -15,6 +15,7 @@ import { AdminProvider } from './contexts/AdminContext';
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { db } from './lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 // Lazy loaded components for bundle optimization
 const AboutSection = lazy(() => import("@/components/ui/about-section").then(m => ({ default: m.AboutSection })));
@@ -186,17 +187,29 @@ const HomeLayout = () => {
     <div className="min-h-screen selection:bg-primary selection:text-primary-foreground bg-background text-foreground transition-colors duration-300">
       <Header />
       <main>
-        <HeroSection />
-        <LogosSection />
-        <Suspense fallback={<LoaderFallback />}>
-          <AboutSection />
-        </Suspense>
-        <ProductsSection />
-        <Suspense fallback={<LoaderFallback />}>
-          <NewsCards />
-        </Suspense>
+        <ScrollReveal>
+          <HeroSection />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <LogosSection />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <Suspense fallback={<LoaderFallback />}>
+            <AboutSection />
+          </Suspense>
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <ProductsSection />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <Suspense fallback={<LoaderFallback />}>
+            <NewsCards />
+          </Suspense>
+        </ScrollReveal>
       </main>
-      <ContactPage />
+      <ScrollReveal delay={0.1}>
+        <ContactPage />
+      </ScrollReveal>
     </div>
   );
 };
